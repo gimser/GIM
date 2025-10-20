@@ -1,0 +1,22 @@
+{
+  "name": "Supeco DLC Smart",
+  "short_name": "Supeco DLC",
+  "description": "A smart product-expiration monitoring system for Supeco managers to automatically track stock, reduce waste, and get AI-powered insights on product lifecycle management.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#333333",
+  "theme_color": "#222222",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}
