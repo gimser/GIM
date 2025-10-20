@@ -1,14 +1,25 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Dashboard from './components/Dashboard';
-import Login from './components/Login';
+import Auth from './components/views/Auth';
 import supecoLogo from './assets/logo';
+import { supabase } from './services/supabaseClient';
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(!!session?.user);
+    });
+    supabase.auth.getSession().then(({ data }) => setIsAuthenticated(!!data.session?.user));
+    return () => subscription.unsubscribe();
+  }, []);
+
   if (!isAuthenticated) {
-    return <Login onLogin={() => setIsAuthenticated(true)} />;
+    return <Auth />;
   }
 
   return (

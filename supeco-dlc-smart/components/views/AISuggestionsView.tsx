@@ -1,7 +1,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { Product, AISuggestion, AISuggestionType } from '../../types';
-import { getAIsuggestions } from '../../services/geminiService';
+import { getAIsuggestions, saveAISuggestionsForProduct } from '../../services/geminiService';
 import Card from '../Card';
 import { PromotionIcon, OrderIcon, WasteIcon, ShortageIcon, AIIcon } from '../icons';
 
@@ -30,6 +30,11 @@ const AISuggestionsView: React.FC<{ products: Product[] }> = ({ products }) => {
         try {
             const result = await getAIsuggestions(products);
             setSuggestions(result);
+            // Persist AI suggestions for a target product (earliest expiration)
+            const target = [...products].sort((a, b) => a.expirationDate.getTime() - b.expirationDate.getTime())[0];
+            if (target && result.length > 0) {
+                await saveAISuggestionsForProduct(target.id, result);
+            }
         } catch (err) {
             setError('Failed to fetch AI suggestions. Please check your API key and try again.');
         } finally {

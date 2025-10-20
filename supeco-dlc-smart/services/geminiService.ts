@@ -1,14 +1,14 @@
 import { GoogleGenAI, Type } from "@google/genai";
-// FIX: Import AISuggestionType to use in mock data
 import { Product, AISuggestion, AISuggestionType } from '../types';
+import { supabase } from './supabaseClient';
 
-const API_KEY = process.env.API_KEY;
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY as string | undefined;
 
 if (!API_KEY) {
-  console.warn("API_KEY environment variable is not set. AI features will be disabled.");
+  console.warn("VITE_GEMINI_API_KEY is not set. AI features will be disabled.");
 }
 
-const ai = new GoogleGenAI({ apiKey: API_KEY });
+const ai = new GoogleGenAI({ apiKey: API_KEY || '' });
 
 export const getAIsuggestions = async (products: Product[]): Promise<AISuggestion[]> => {
   if (!API_KEY) {
@@ -71,9 +71,26 @@ export const getAIsuggestions = async (products: Product[]): Promise<AISuggestio
 
     const jsonText = response.text.trim();
     const result = JSON.parse(jsonText);
-    return result.suggestions || [];
+    const suggestions: AISuggestion[] = result.suggestions || [];
+    return suggestions;
   } catch (error) {
     console.error("Error fetching AI suggestions:", error);
     throw new Error("Failed to generate AI suggestions.");
+  }
+};
+
+export const saveAISuggestionsForProduct = async (
+  productId: string,
+  suggestions: AISuggestion[]
+): Promise<void> => {
+  if (!suggestions || suggestions.length === 0) return;
+  const rows = suggestions.map((s) => ({
+    product_id: productId,
+    type: s.type,
+    suggestion: `${s.title}: ${s.recommendation}`,
+  }));
+  const { error } = await supabase.from('ai_recommendations').insert(rows);
+  if (error) {
+    console.error('Failed to save AI recommendations:', error);
   }
 };
