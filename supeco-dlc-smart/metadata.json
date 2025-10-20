@@ -1,0 +1,7 @@
+{
+  "name": "Supeco DLC Smart",
+  "description": "A smart product-expiration monitoring system for Supeco managers to automatically track stock, reduce waste, and get AI-powered insights on product lifecycle management.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
