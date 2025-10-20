@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import supecoLogo from '../assets/logo';
+import { supabase } from '../services/supabaseClient';
 
 interface LoginProps {
   onLogin: () => void;
@@ -11,12 +12,22 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [password, setPassword] = useState('password');
   const [error, setError] = useState('');
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email && password) {
+    if (!email || !password) {
+      setError('Please enter your credentials.');
+      return;
+    }
+    setError('');
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    if (data?.user) {
       onLogin();
     } else {
-      setError('Please enter your credentials.');
+      setError('Login failed.');
     }
   };
 
@@ -32,7 +43,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         <form onSubmit={handleLogin}>
           <div className="mb-4">
             <label className="block text-gray-300 text-sm font-bold mb-2" htmlFor="email">
-              Employee ID or Email
+              Email
             </label>
             <input
               id="email"

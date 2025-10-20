@@ -1,38 +1,7 @@
 import { Product, ProductFormData, ProductStatus } from '../types';
+import { supabase } from '../services/supabaseClient';
 
-const DB_NAME = 'supeco_db';
-const DB_VERSION = 1;
-const STORE_NAME = 'products';
-
-// --- Logic from sampleData.ts, integrated here for initial seeding ---
-const productNames = [
-  // Dairy
-  { name: 'Milk 1L', category: 'Dairy' },
-  { name: 'Yogurt Nature', category: 'Dairy' },
-  { name: 'Cheddar Cheese 200g', category: 'Dairy' },
-  { name: 'Butter 250g', category: 'Dairy' },
-  // Meat & Fish
-  { name: 'Chicken Breast 500g', category: 'Meat & Fish' },
-  { name: 'Salmon Fillet', category: 'Meat & Fish' },
-  { name: 'Ground Beef 1kg', category: 'Meat & Fish' },
-  // Bakery
-  { name: 'Whole Wheat Bread', category: 'Bakery' },
-  { name: 'Croissants (x4)', category: 'Bakery' },
-  // Produce
-  { name: 'Organic Bananas', category: 'Produce' },
-  { name: 'Tomatoes 1kg', category: 'Produce' },
-  { name: 'Lettuce Head', category: 'Produce' },
-  // Packaged Goods
-  { name: 'Pasta 500g', category: 'Packaged Goods' },
-  { name: 'Canned Tuna', category: 'Packaged Goods' },
-  { name: 'Olive Oil 750ml', category: 'Packaged Goods' },
-];
-
-const locations = ['Aisle 1', 'Aisle 2', 'Aisle 3', 'Fridge 1', 'Fridge 2', 'Freezer A', 'Bakery Section', 'Produce Section'];
-const employees = ['Jean Dupont', 'Amina Benali', 'John Smith', 'Fatima Zahra'];
-
-const getRandom = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
-
+// --- Status computation (kept consistent with previous logic) ---
 export const getStatus = (expDate: Date): ProductStatus => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -50,136 +19,178 @@ export const getStatus = (expDate: Date): ProductStatus => {
   return ProductStatus.Fresh;
 };
 
-const generateSampleData = (count: number): Product[] => {
-  const data: Product[] = [];
-  for (let i = 0; i < count; i++) {
-    const baseProduct = getRandom(productNames);
-    const dateOffset = Math.floor(Math.random() * 60) - 15; // -15 to +44 days from now
-    const expirationDate = new Date();
-    expirationDate.setDate(expirationDate.getDate() + dateOffset);
-
-    const product: Product = {
-      id: `prod_sample_${i + 1}`,
-      barcode: `0000${i + 1}`.slice(-5) + `0000${Math.floor(Math.random() * 99999)}`.slice(-5),
-      name: baseProduct.name,
-      category: baseProduct.category,
-      expirationDate,
-      quantity: Math.floor(Math.random() * 100) + 1,
-      location: getRandom(locations),
-      status: getStatus(expirationDate),
-      scannedBy: getRandom(employees),
-      photoUrl: `https://picsum.photos/seed/${i+1}/200/200`,
-    };
-    data.push(product);
-  }
-  return data;
+// --- DB Row mapping ---
+type DBProductRow = {
+  id: string;
+  name: string;
+  category: string | null;
+  quantity: number | null;
+  expiration_date: string | null; // ISO date (YYYY-MM-DD)
+  location: string | null;
+  status: string | null;
+  image_url: string | null;
+  // Optional columns if you extend schema for full feature parity
+  barcode?: string | null;
+  scanned_by?: string | null;
+  created_at?: string | null;
 };
-// --- End of integrated logic ---
 
-const openDB = (): Promise<IDBDatabase> => {
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open(DB_NAME, DB_VERSION);
+const toIsoDate = (date: Date): string => {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = `${d.getMonth() + 1}`.padStart(2, '0');
+  const day = `${d.getDate()}`.padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
-        request.onupgradeneeded = (event) => {
-            const db = (event.target as IDBOpenDBRequest).result;
-            if (!db.objectStoreNames.contains(STORE_NAME)) {
-                const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
-                store.createIndex('name', 'name', { unique: false });
-                store.createIndex('category', 'category', { unique: false });
-                store.createIndex('expirationDate', 'expirationDate', { unique: false });
-                
-                const sampleData = generateSampleData(30);
-                sampleData.forEach(product => {
-                    store.add(product);
-                });
-            }
-        };
+const mapRowToProduct = (row: DBProductRow): Product => {
+  const expirationDate = row.expiration_date ? new Date(row.expiration_date) : new Date();
+  const computedStatus = getStatus(expirationDate);
+  const statusString = (row.status as ProductStatus | null) || computedStatus;
 
-        request.onsuccess = (event) => {
-            resolve((event.target as IDBOpenDBRequest).result);
-        };
+  // Coerce to valid ProductStatus; fallback to computed
+  const validStatuses: Record<string, ProductStatus> = {
+    [ProductStatus.Fresh]: ProductStatus.Fresh,
+    [ProductStatus.Soon]: ProductStatus.Soon,
+    [ProductStatus.Expired]: ProductStatus.Expired,
+  };
+  const status = validStatuses[statusString as string] || computedStatus;
 
-        request.onerror = (event) => {
-            reject('IndexedDB error: ' + (event.target as IDBOpenDBRequest).error);
-        };
-    });
+  return {
+    id: row.id,
+    name: row.name,
+    category: row.category ?? '',
+    quantity: row.quantity ?? 0,
+    expirationDate,
+    location: row.location ?? '',
+    status,
+    photoUrl: row.image_url ?? undefined,
+    barcode: (row as any).barcode ?? undefined,
+    scannedBy: (row as any).scanned_by ?? 'Admin Manager',
+  };
+};
+
+const maybeInclude = <T extends object>(obj: T, key: string, value: unknown): T => {
+  if (value === undefined || value === null || value === '') return obj;
+  return { ...(obj as any), [key]: value } as T;
+};
+
+// Upload data URL image to Supabase Storage bucket `product-images`
+const uploadImageFromDataUrl = async (dataUrl: string, productId: string): Promise<string> => {
+  const matches = dataUrl.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.*)$/);
+  if (!matches) throw new Error('Invalid data URL');
+  const contentType = matches[1];
+  const base64 = matches[2];
+  const byteCharacters = atob(base64);
+  const byteNumbers = new Array(byteCharacters.length);
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+  const byteArray = new Uint8Array(byteNumbers);
+  const blob = new Blob([byteArray], { type: contentType });
+
+  const fileName = `images/${productId}_${Date.now()}.jpg`;
+  const { error: uploadError } = await supabase.storage.from('product-images').upload(fileName, blob, {
+    contentType: contentType || 'image/jpeg',
+    upsert: false,
+  });
+  if (uploadError) throw uploadError;
+  const { data: pub } = supabase.storage.from('product-images').getPublicUrl(fileName);
+  return pub.publicUrl;
 };
 
 export const getProducts = async (): Promise<Product[]> => {
-    const db = await openDB();
-    return new Promise((resolve, reject) => {
-        const transaction = db.transaction(STORE_NAME, 'readonly');
-        const store = transaction.objectStore(STORE_NAME);
-        const request = store.getAll();
-
-        request.onsuccess = () => {
-            resolve(request.result as Product[]);
-        };
-
-        request.onerror = () => {
-            reject('Error fetching products: ' + request.error);
-        };
-    });
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (error) throw new Error(`Error fetching products: ${error.message}`);
+  const rows = (data || []) as DBProductRow[];
+  return rows.map(mapRowToProduct);
 };
 
-export const addProduct = async (productData: Omit<Product, 'id' | 'status' | 'photoUrl'>): Promise<Product> => {
-    const db = await openDB();
-    return new Promise((resolve, reject) => {
-        const newProduct: Product = {
-            ...productData,
-            id: `prod_${Date.now()}`,
-            status: getStatus(productData.expirationDate),
-        };
-        
-        const transaction = db.transaction(STORE_NAME, 'readwrite');
-        const store = transaction.objectStore(STORE_NAME);
-        const request = store.add(newProduct);
+export const addProduct = async (productData: ProductFormData): Promise<Product> => {
+  const status = getStatus(productData.expirationDate);
+  const payloadBase = {
+    name: productData.name,
+    category: productData.category,
+    quantity: productData.quantity,
+    expiration_date: toIsoDate(productData.expirationDate),
+    location: productData.location,
+    status,
+  } as Record<string, unknown>;
 
-        request.onsuccess = () => {
-            resolve(newProduct);
-        };
+  let payload = payloadBase;
+  payload = maybeInclude(payload, 'image_url', undefined);
+  payload = maybeInclude(payload, 'barcode', productData.barcode);
+  payload = maybeInclude(payload, 'scanned_by', productData.scannedBy);
 
-        request.onerror = () => {
-            reject('Error adding product: ' + request.error);
-        };
-    });
+  // First attempt with all keys; if the DB lacks optional columns, retry without them
+  let insertRes = await supabase.from('products').insert([payload]).select('*').single();
+  if (insertRes.error) {
+    const msg = insertRes.error.message.toLowerCase();
+    const maybeMissingCols = msg.includes('column') && msg.includes('does not exist');
+    if (maybeMissingCols) {
+      const fallbackPayload = payloadBase; // drop optional keys
+      insertRes = await supabase.from('products').insert([fallbackPayload]).select('*').single();
+    }
+  }
+  if (insertRes.error || !insertRes.data) {
+    throw new Error(`Error adding product: ${insertRes.error?.message ?? 'unknown error'}`);
+  }
+  return mapRowToProduct(insertRes.data as DBProductRow);
 };
 
 export const updateProduct = async (updatedProduct: Product): Promise<Product> => {
-    const db = await openDB();
-    return new Promise((resolve, reject) => {
-        const productWithStatus = {
-            ...updatedProduct,
-            status: getStatus(updatedProduct.expirationDate),
-        };
-        
-        const transaction = db.transaction(STORE_NAME, 'readwrite');
-        const store = transaction.objectStore(STORE_NAME);
-        const request = store.put(productWithStatus);
+  const status = getStatus(updatedProduct.expirationDate);
+  const payloadBase = {
+    name: updatedProduct.name,
+    category: updatedProduct.category,
+    quantity: updatedProduct.quantity,
+    expiration_date: toIsoDate(updatedProduct.expirationDate),
+    location: updatedProduct.location,
+    status,
+  } as Record<string, unknown>;
 
-        request.onsuccess = () => {
-            resolve(productWithStatus);
-        };
+  let imageUrl: string | undefined;
+  if (updatedProduct.photoUrl && updatedProduct.photoUrl.startsWith('data:image')) {
+    imageUrl = await uploadImageFromDataUrl(updatedProduct.photoUrl, updatedProduct.id);
+  } else if (updatedProduct.photoUrl) {
+    imageUrl = updatedProduct.photoUrl;
+  }
 
-        request.onerror = () => {
-            reject('Error updating product: ' + request.error);
-        };
-    });
+  let payload = payloadBase;
+  payload = maybeInclude(payload, 'image_url', imageUrl);
+  payload = maybeInclude(payload, 'barcode', updatedProduct.barcode);
+  payload = maybeInclude(payload, 'scanned_by', updatedProduct.scannedBy);
+
+  let updateRes = await supabase
+    .from('products')
+    .update(payload)
+    .eq('id', updatedProduct.id)
+    .select('*')
+    .single();
+
+  if (updateRes.error) {
+    const msg = updateRes.error.message.toLowerCase();
+    const maybeMissingCols = msg.includes('column') && msg.includes('does not exist');
+    if (maybeMissingCols) {
+      const fallbackPayload = payloadBase;
+      updateRes = await supabase
+        .from('products')
+        .update(fallbackPayload)
+        .eq('id', updatedProduct.id)
+        .select('*')
+        .single();
+    }
+  }
+  if (updateRes.error || !updateRes.data) {
+    throw new Error(`Error updating product: ${updateRes.error?.message ?? 'unknown error'}`);
+  }
+  return mapRowToProduct(updateRes.data as DBProductRow);
 };
 
 export const deleteProduct = async (productId: string): Promise<void> => {
-    const db = await openDB();
-    return new Promise((resolve, reject) => {
-        const transaction = db.transaction(STORE_NAME, 'readwrite');
-        const store = transaction.objectStore(STORE_NAME);
-        const request = store.delete(productId);
-
-        request.onsuccess = () => {
-            resolve();
-        };
-
-        request.onerror = () => {
-            reject('Error deleting product: ' + request.error);
-        };
-    });
+  const { error } = await supabase.from('products').delete().eq('id', productId);
+  if (error) throw new Error(`Error deleting product: ${error.message}`);
 };
