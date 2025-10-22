@@ -1,7 +1,9 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, type HTMLMotionProps } from 'framer-motion';
 
-export const NeonCard: React.FC<{ className?: string; onClick?: () => void } & React.HTMLAttributes<HTMLDivElement>> = ({ className = '', children, onClick, ...rest }) => {
+type DivMotionBase = Omit<HTMLMotionProps<'div'>, 'children'> & { children?: React.ReactNode };
+
+export const NeonCard: React.FC<{ className?: string; onClick?: () => void } & DivMotionBase> = ({ className = '', children, onClick, ...rest }) => {
   return (
     <motion.div
       onClick={onClick}

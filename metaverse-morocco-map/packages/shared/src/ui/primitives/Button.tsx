@@ -1,7 +1,9 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, type HTMLMotionProps } from 'framer-motion';
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+type MotionButtonBase = Omit<HTMLMotionProps<'button'>, 'children'> & { children?: React.ReactNode };
+
+export interface ButtonProps extends MotionButtonBase {
   variant?: 'primary' | 'secondary' | 'ghost';
   glow?: boolean;
 }
@@ -19,6 +21,7 @@ export const Button: React.FC<ButtonProps> = ({ children, className = '', varian
       whileHover={{ scale: 1.03 }}
       whileTap={{ scale: 0.98 }}
       className={`${base} ${styles} ${className}`}
+      type={rest.type ?? 'button'}
       {...rest}
     >
       {glow && (

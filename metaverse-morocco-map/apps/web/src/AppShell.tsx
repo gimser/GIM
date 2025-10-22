@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from './components/LanguageSwitcher';
-import { ThemeProvider } from '@mmm/shared/ui';
+import { ThemeProvider, ThemeContext } from '@mmm/shared/ui';
 import { Link, useLocation } from 'react-router-dom';
 import { BackgroundFX } from '@mmm/shared/ui';
 import { Button } from '@mmm/shared/ui';
@@ -25,7 +25,7 @@ const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               <NavLink to="/profile" label="Profile" />
               <div className="mx-2 h-5 w-px bg-white/20" />
               <LanguageSwitcher current={i18n.language} onChange={(lng) => i18n.changeLanguage(lng)} />
-              <Button variant="secondary" className="ml-2">Theme</Button>
+              <ThemeToggle />
             </nav>
           </div>
         </header>
@@ -47,6 +47,15 @@ const NavLink: React.FC<{ to: string; label: string }> = ({ to, label }) => {
     >
       {label}
     </Link>
+  );
+};
+
+const ThemeToggle: React.FC = () => {
+  const { theme, toggleTheme } = React.useContext(ThemeContext);
+  return (
+    <Button variant="secondary" className="ml-2" onClick={toggleTheme}>
+      {theme === 'dark' ? 'Light' : 'Dark'}
+    </Button>
   );
 };
 

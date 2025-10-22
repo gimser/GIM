@@ -53,7 +53,12 @@ const ChatBox: React.FC<{ cityId: string }> = ({ cityId }) => {
     setText('')
   }
 
-  if (!supabase) return null
+  if (!supabase) return (
+    <div className="fixed left-4 bottom-4 w-80 bg-white/10 text-white rounded shadow-lg flex flex-col h-80 p-4">
+      <div className="font-semibold mb-2">City chat</div>
+      <div className="text-sm text-white/80">ربط Supabase مطلوب لتفعيل الدردشة الحية.</div>
+    </div>
+  )
 
   return (
     <div className="fixed left-4 bottom-4 w-80 bg-white/95 rounded shadow-lg flex flex-col h-80">
