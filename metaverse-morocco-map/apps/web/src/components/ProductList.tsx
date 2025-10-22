@@ -9,8 +9,10 @@ const ProductList: React.FC<{ cityId: string }> = ({ cityId }) => {
   const addItem = useCartStore((s) => s.addItem)
 
   useEffect(() => {
+    const sb = supabase
     const load = async () => {
-      const { data, error } = await supabase
+      if (!sb) return
+      const { data, error } = await sb
         .from('products')
         .select('id,name,description,price_cents,image_url,stores!inner(city_id)')
         .eq('stores.city_id', cityId)

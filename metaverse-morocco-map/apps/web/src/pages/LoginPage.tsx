@@ -8,6 +8,7 @@ const LoginPage: React.FC = () => {
 
   const signIn = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!supabase) return setMessage('Supabase not configured')
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) setMessage(error.message)
     else setMessage('Signed in')
@@ -15,6 +16,7 @@ const LoginPage: React.FC = () => {
 
   const signUp = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!supabase) return setMessage('Supabase not configured')
     const { error } = await supabase.auth.signUp({ email, password })
     if (error) setMessage(error.message)
     else setMessage('Check your email to confirm')

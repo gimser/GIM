@@ -9,10 +9,11 @@ const ChatBox: React.FC<{ cityId: string }> = ({ cityId }) => {
   const listRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
-    if (!supabase) return
+    const sb = supabase
+    if (!sb) return
     let active = true
     const load = async () => {
-      const { data } = await supabase
+      const { data } = await sb
         .from('messages')
         .select('id,username,content,created_at')
         .eq('city_id', cityId)
@@ -22,7 +23,7 @@ const ChatBox: React.FC<{ cityId: string }> = ({ cityId }) => {
     }
     load()
 
-    const channel = supabase
+    const channel = sb
       .channel('chat:' + cityId)
       .on(
         'postgres_changes',
@@ -36,7 +37,7 @@ const ChatBox: React.FC<{ cityId: string }> = ({ cityId }) => {
 
     return () => {
       active = false
-      supabase.removeChannel(channel)
+      sb.removeChannel(channel)
     }
   }, [cityId])
 

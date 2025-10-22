@@ -9,6 +9,7 @@ import LoginPage from './pages/LoginPage'
 import AppShell from './AppShell'
 import ExplorePage from './pages/ExplorePage'
 import AdminPage from './pages/AdminPage'
+import MetaversePage from './pages/MetaversePage'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -20,6 +21,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <Route path="/city/:cityId" element={<CityPage />} />
           <Route path="/explore" element={<ExplorePage />} />
           <Route path="/admin" element={<AdminPage />} />
+          <Route path="/metaverse" element={<MetaversePage />} />
           <Route path="/login" element={<LoginPage />} />
         </Routes>
       </AppShell>
