@@ -1,0 +1,16 @@
+{
+  "name": "metaverse-morocco-map",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/web",
+    "apps/server",
+    "packages/shared"
+  ],
+  "scripts": {
+    "dev": "npm -w apps/web run dev & npm -w apps/server run dev",
+    "build": "npm -w apps/web run build && npm -w apps/server run build",
+    "lint": "npm -ws run lint || true",
+    "typecheck": "npm -ws run typecheck || true"
+  }
+}
