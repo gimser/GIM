@@ -1,0 +1,13 @@
+{
+  "name": "Metaverse Morocco Map",
+  "short_name": "MMM",
+  "description": "Explore Morocco in 3D — Commerce, Tourism, and Eco Innovation",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A0A0A",
+  "theme_color": "#0D9488",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
