@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from './components/LanguageSwitcher';
 import { ThemeProvider, ThemeContext } from '@mmm/shared/ui';
 import { Link, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { BackgroundFX } from '@mmm/shared/ui';
 import { Button } from '@mmm/shared/ui';
 
@@ -30,6 +31,7 @@ const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           </div>
         </header>
         <main className="relative z-10 max-w-6xl mx-auto px-4 py-6">
+          <InstallPWAButton />
           {children}
         </main>
       </div>
@@ -56,6 +58,38 @@ const ThemeToggle: React.FC = () => {
     <Button variant="secondary" className="ml-2" onClick={toggleTheme}>
       {theme === 'dark' ? 'Light' : 'Dark'}
     </Button>
+  );
+};
+
+const InstallPWAButton: React.FC = () => {
+  const [promptEvent, setPromptEvent] = useState<any>(null);
+  const [installable, setInstallable] = useState(false);
+
+  useEffect(() => {
+    const handler = (e: any) => {
+      e.preventDefault();
+      setPromptEvent(e);
+      setInstallable(true);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  if (!installable) return null;
+
+  return (
+    <div className="mb-4">
+      <Button onClick={async () => {
+        if (!promptEvent) return;
+        promptEvent.prompt();
+        const choice = await promptEvent.userChoice;
+        if (choice.outcome !== 'accepted') {
+          // ignored
+        }
+        setPromptEvent(null);
+        setInstallable(false);
+      }}>تثبيت التطبيق</Button>
+    </div>
   );
 };
 
