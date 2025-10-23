@@ -25,10 +25,22 @@ export default function LocaleLayout({
 
   return (
     <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'}>
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#059669" />
+        <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+      </head>
       <body>
         <NextIntlClientProvider locale={locale} messages={messages}>
           {children}
         </NextIntlClientProvider>
+        <script dangerouslySetInnerHTML={{__html: `
+          if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+              navigator.serviceWorker.register('/sw.js').catch(function(e){console.error('SW reg failed', e)});
+            });
+          }
+        `}} />
       </body>
     </html>
   );
