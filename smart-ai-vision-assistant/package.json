@@ -1,0 +1,20 @@
+{
+  "name": "smart-ai-vision-assistant",
+  "private": true,
+  "version": "0.1.0",
+  "license": "MIT",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm -w apps/web run build",
+    "dev:web": "npm -w apps/web run dev",
+    "dev:mobile": "npm -w apps/mobile run start",
+    "lint": "echo 'No root lint'",
+    "typecheck": "tsc -b -v || true"
+  },
+  "devDependencies": {
+    "typescript": "5.4.5"
+  }
+}

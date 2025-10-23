@@ -1,0 +1,24 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/api" },
+    { "path": "./packages/utils" },
+    { "path": "./packages/ui" },
+    { "path": "./apps/web" },
+    { "path": "./apps/mobile" }
+  ],
+  "compilerOptions": {
+    "composite": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "moduleResolution": "bundler",
+    "target": "ES2022",
+    "module": "ESNext",
+    "baseUrl": ".",
+    "paths": {
+      "@sava/api": ["packages/api/src"],
+      "@sava/utils": ["packages/utils/src"],
+      "@sava/ui": ["packages/ui/src"]
+    }
+  }
+}
