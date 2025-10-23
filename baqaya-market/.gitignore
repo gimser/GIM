@@ -1,0 +1,32 @@
+# Node
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Logs
+logs
+*.log
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Build
+.next
+.vercel
+.expo
+/dist
+build
+coverage
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Supabase
+supabase/.temp
+supabase/.branches
+supabase/.studio
