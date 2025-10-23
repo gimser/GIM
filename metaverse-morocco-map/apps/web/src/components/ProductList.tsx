@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
+import { NeonCard, Button } from '@mmm/shared/ui'
 import { useCartStore } from '../store/cartStore'
 
 interface Product { id: string; name: string; description: string | null; price_cents: number; image_url: string | null }
@@ -28,18 +29,21 @@ const ProductList: React.FC<{ cityId: string }> = ({ cityId }) => {
     load()
   }, [cityId])
 
+  if (!products.length) {
+    return (
+      <div className="text-white/80">لا توجد منتجات لهذه المدينة حالياً.</div>
+    )
+  }
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {products.map((p) => (
-        <div key={p.id} className="border rounded p-3 bg-white/80">
+        <NeonCard key={p.id}>
           <div className="font-semibold">{p.name}</div>
-          <div className="text-sm text-gray-600">{p.description}</div>
-          <div className="mt-2 font-bold">${(p.price_cents/100).toFixed(2)}</div>
-          <button
-            className="mt-2 px-3 py-1 bg-indigo-600 text-white rounded"
-            onClick={() => addItem({ id: p.id, name: p.name, priceCents: p.price_cents, quantity: 1 })}
-          >Add to cart</button>
-        </div>
+          <div className="text-sm text-white/80">{p.description}</div>
+          <div className="mt-2 font-bold text-mmm-gold">${(p.price_cents/100).toFixed(2)}</div>
+          <Button className="mt-2" onClick={() => addItem({ id: p.id, name: p.name, priceCents: p.price_cents, quantity: 1 })}>أضف إلى السلة</Button>
+        </NeonCard>
       ))}
     </div>
   )

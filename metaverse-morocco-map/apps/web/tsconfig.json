@@ -13,7 +13,8 @@
     "strict": true,
     "types": ["vite/client"],
     "paths": {
-      "@mmm/shared": ["../../packages/shared/src"]
+      "@mmm/shared": ["../../packages/shared/src"],
+      "@mmm/shared/*": ["../../packages/shared/src/*"]
     }
   },
   "include": ["src"]

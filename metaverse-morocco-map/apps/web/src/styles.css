@@ -12,3 +12,37 @@ html, body, #root {
   bottom: 0;
   width: 100%;
 }
+
+/* Global theme variables via data-theme */
+:root[data-theme='light'] {
+  --bg: 255 255 255;
+  --fg: 14 14 14;
+}
+
+:root[data-theme='dark'] {
+  --bg: 7 10 18;
+  --fg: 240 240 240;
+}
+
+body {
+  @apply bg-[rgb(var(--bg))] text-[rgb(var(--fg))] font-latin;
+}
+
+[dir='rtl'] body {
+  @apply font-arabic;
+}
+
+/* Metaverse neon borders */
+.neon-border {
+  position: relative;
+}
+.neon-border::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 0.75rem;
+  background: conic-gradient(from 180deg at 50% 50%, #00E5FF, #7C3AED, #F59E0B, #00E5FF);
+  filter: blur(16px);
+  opacity: 0.25;
+  z-index: -1;
+}

@@ -22,3 +22,6 @@ export const MOROCCO_CITIES: City[] = [
   { id: "tangier", nameEn: "Tangier", nameFr: "Tanger", nameAr: "طنجة", coordinates: [-5.803, 35.759] },
   { id: "agadir", nameEn: "Agadir", nameFr: "Agadir", nameAr: "أكادير", coordinates: [-9.597, 30.427] }
 ];
+
+// UI re-exports for convenience
+export * as UI from './ui';
