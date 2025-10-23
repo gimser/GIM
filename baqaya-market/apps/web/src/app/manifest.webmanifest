@@ -1,0 +1,9 @@
+{
+  "name": "Baqaya Market",
+  "short_name": "Baqaya",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#11a36a",
+  "icons": []
+}

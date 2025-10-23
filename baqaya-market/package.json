@@ -1,0 +1,25 @@
+{
+  "name": "baqaya-market",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=18.18.0"
+  },
+  "scripts": {
+    "dev:web": "npm run dev -w apps/web",
+    "dev:mobile": "npm run start -w apps/mobile",
+    "build": "npm run build -w apps/web && npm run build -w apps/mobile",
+    "lint": "echo 'lint stubs'",
+    "typecheck": "echo 'typecheck stubs'",
+    "seed": "echo 'run supabase seed manually'"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "license": "MIT"
+}
