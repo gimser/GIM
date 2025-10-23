@@ -1,0 +1,29 @@
+{
+  "name": "@baqaya/mobile",
+  "version": "0.1.0",
+  "private": true,
+  "main": "expo-router/entry",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web",
+    "build": "echo 'build via EAS'"
+  },
+  "dependencies": {
+    "expo": "~52.0.0",
+    "react": "18.2.0",
+    "react-native": "0.76.0",
+    "expo-router": "^3.5.23",
+    "expo-status-bar": "~2.0.0",
+    "react-native-maps": "^1.17.6",
+    "@react-navigation/native": "^6.1.18",
+    "@react-navigation/native-stack": "^6.9.26",
+    "styled-components": "^6.1.8"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.67",
+    "@types/react-native": "^0.73.0",
+    "typescript": "^5.4.5"
+  }
+}
