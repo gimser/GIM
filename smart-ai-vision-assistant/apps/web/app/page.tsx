@@ -12,6 +12,7 @@ export default function HomePage() {
   const [recording, setRecording] = useState(false);
   const [speaking, setSpeaking] = useState(false);
   const [rtl, setRtl] = useState(false);
+  const [localOnly, setLocalOnly] = useState(false);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -25,6 +26,10 @@ export default function HomePage() {
     setMessages((m) => [...m, { role: "user", text }]);
     setInput("");
 
+    if (localOnly) {
+      setMessages((m) => [...m, { role: "assistant", text: "[Local mode] Message received." }]);
+      return;
+    }
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -49,6 +54,10 @@ export default function HomePage() {
     const base64 = dataUrl.split(",")[1] ?? "";
 
     setMessages((m) => [...m, { role: "user", text: "📸" }]);
+    if (localOnly) {
+      setMessages((m) => [...m, { role: "assistant", text: "[Local mode] Vision capture received." }]);
+      return;
+    }
     const res = await fetch("/api/vision", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -71,7 +80,52 @@ export default function HomePage() {
 
   async function toggleRecord() {
     if (!("webkitSpeechRecognition" in window || "SpeechRecognition" in window)) {
-      setRecording((r) => !r);
+      if (recording) {
+        setRecording(false);
+        return;
+      }
+      // Fallback: browser doesn't support on-device STT; use server /api/transcribe via MediaRecorder
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const chunks: BlobPart[] = [];
+      const mr = new MediaRecorder(stream);
+      mr.ondataavailable = (e) => chunks.push(e.data);
+      mr.onstop = async () => {
+        const blob = new Blob(chunks, { type: "audio/webm" });
+        const b64 = await (async () => {
+          return await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve((reader.result as string).split(",")[1] ?? "");
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+        })();
+        if (!localOnly) {
+          const res = await fetch("/api/transcribe", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ audioBase64: b64, mimeType: blob.type || "audio/webm" }),
+          });
+          const data = await res.json();
+          const text: string = data.text || "";
+          if (text) {
+            setMessages((m) => [...m, { role: "user", text }]);
+            const chatRes = await fetch("/api/chat", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ text }),
+            });
+            const chatData = await chatRes.json();
+            const reply = chatData.text || "";
+            setMessages((m) => [...m, { role: "assistant", text: reply }]);
+            speak(reply);
+          }
+        }
+        stream.getTracks().forEach((t) => t.stop());
+        setRecording(false);
+      };
+      mr.start();
+      setRecording(true);
+      setTimeout(() => mr.stop(), 5000);
       return;
     }
     const SR: any = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -106,6 +160,10 @@ export default function HomePage() {
           <h1 className="text-xl font-semibold">Smart AI Vision Assistant</h1>
           <p className="text-zinc-400 text-sm">See, listen, speak with Gemini</p>
         </div>
+        <div className="ml-auto flex items-center gap-3 text-xs text-zinc-400">
+          <span>By using mic/camera you consent to processing.</span>
+          <a href="#" onClick={(e) => { e.preventDefault(); setMessages([]); }} className="underline">Clear chat</a>
+        </div>
       </header>
 
       <div className="glow rounded-2xl border border-zinc-800 p-4 bg-gradient-to-b from-zinc-900/60 to-zinc-900/20">
@@ -113,6 +171,10 @@ export default function HomePage() {
         <div className="flex gap-2 mt-3">
           <button onClick={captureAndAnalyze} className="px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-sm">📸 Analyze</button>
           <VoiceButton recording={recording} onClick={toggleRecord} />
+          <label className="ml-auto flex items-center gap-2 text-xs text-zinc-300">
+            <input type="checkbox" checked={localOnly} onChange={(e) => setLocalOnly(e.target.checked)} />
+            Local-only
+          </label>
         </div>
       </div>
 
@@ -132,6 +194,12 @@ export default function HomePage() {
             rows={2}
           />
           <button onClick={sendText} className="h-10 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-sm">Send</button>
+          <button
+            onClick={() => setMessages([])}
+            className="h-10 px-3 rounded-xl bg-zinc-900/60 border border-zinc-800 hover:bg-zinc-800 text-xs"
+          >
+            Clear
+          </button>
         </div>
       </section>
 
