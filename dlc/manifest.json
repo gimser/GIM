@@ -1,0 +1,17 @@
+{
+    "name": "Supeco DLC Manager - Ultra Pro",
+    "short_name": "Supeco DLC",
+    "description": "نظام إدارة المخزون المتقدم - يعمل بدون إنترنت",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#F1F1F1",
+    "theme_color": "#FFD900",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "assets/icons/icon.svg",
+            "sizes": "192x192 512x512",
+            "type": "image/svg+xml"
+        }
+    ]
+}

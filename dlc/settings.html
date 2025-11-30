@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#000000">
+    <title>الإعدادات - Supeco DLC Pro</title>
+    <link rel="manifest" href="./manifest.json">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="./styles/global.css">
+    <link rel="stylesheet" href="./styles/sidebar.css">
+    <link rel="stylesheet" href="./styles/forms.css">
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar-overlay"></div>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">Supeco DLC Pro</div>
+            <button class="btn-icon sidebar-close" style="color: white;">✕</button>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">📦</span>
+                <span>المنتجات</span>
+            </a>
+            <a href="dashboard.html" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span>لوحة التحكم</span>
+            </a>
+            <a href="scan.html" class="nav-item">
+                <span class="nav-icon">📷</span>
+                <span>الماسح الضوئي</span>
+            </a>
+            <a href="settings.html" class="nav-item active">
+                <span class="nav-icon">⚙️</span>
+                <span>الإعدادات</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="page-header">
+            <div class="flex items-center gap-4">
+                <button class="btn-icon menu-toggle">☰</button>
+                <h1>الإعدادات</h1>
+            </div>
+        </header>
+
+        <div class="settings-container" style="max-width: 800px; margin: 0 auto;">
+
+            <!-- Data Management -->
+            <section class="card p-4 mb-4 bg-white rounded-lg shadow">
+                <h2 class="text-xl font-bold mb-4">إدارة البيانات</h2>
+                <div class="flex flex-col gap-4">
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded">
+                        <div>
+                            <h3 class="font-bold">تصدير قاعدة البيانات</h3>
+                            <p class="text-sm text-gray-500">حفظ نسخة احتياطية من جميع المنتجات</p>
+                        </div>
+                        <button id="btnExport" class="btn btn-primary">تصدير JSON</button>
+                    </div>
+
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded">
+                        <div>
+                            <h3 class="font-bold">استيراد قاعدة البيانات</h3>
+                            <p class="text-sm text-gray-500">استعادة نسخة سابقة (سيتم حذف الحالي)</p>
+                        </div>
+                        <input type="file" id="fileImport" accept=".json" hidden>
+                        <button id="btnImport" class="btn btn-secondary">استيراد JSON</button>
+                    </div>
+
+                    <div class="flex items-center justify-between p-4 bg-red-50 rounded border border-red-100">
+                        <div>
+                            <h3 class="font-bold text-red-600">حذف جميع البيانات</h3>
+                            <p class="text-sm text-red-400">هذا الإجراء لا يمكن التراجع عنه</p>
+                        </div>
+                        <button id="btnClear" class="btn btn-danger">حذف الكل</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- App Settings -->
+            <section class="card p-4 bg-white rounded-lg shadow">
+                <h2 class="text-xl font-bold mb-4">تفضيلات التطبيق</h2>
+                <div class="flex flex-col gap-4">
+                    <div class="flex items-center justify-between p-2">
+                        <span>النسخ الاحتياطي التلقائي</span>
+                        <label class="switch">
+                            <input type="checkbox" id="autoBackup">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+                    <div class="flex items-center justify-between p-2">
+                        <span>الوضع المتقدم</span>
+                        <label class="switch">
+                            <input type="checkbox" id="advancedMode">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <div class="text-center mt-8 text-gray-400 text-sm">
+                <!DOCTYPE html>
+                <html lang="ar" dir="rtl">
+
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport"
+                        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+                    <meta name="theme-color" content="#000000">
+                    <title>الإعدادات - Supeco DLC Pro</title>
+                    <link rel="manifest" href="./manifest.json">
+
+                    <!-- Styles -->
+                    <link rel="stylesheet" href="./styles/global.css">
+                    <link rel="stylesheet" href="./styles/sidebar.css">
+                    <link rel="stylesheet" href="./styles/forms.css">
+                </head>
+
+                <body>
+
+                    <!-- Sidebar -->
+                    <div class="sidebar-overlay"></div>
+                    <aside class="sidebar">
+                        <div class="sidebar-header">
+                            <div class="sidebar-logo">Supeco DLC Pro</div>
+                            <button class="btn-icon sidebar-close" style="color: white;">✕</button>
+                        </div>
+                        <nav class="sidebar-nav">
+                            <a href="index.html" class="nav-item">
+                                <span class="nav-icon">📦</span>
+                                <span>المنتجات</span>
+                            </a>
+                            <a href="dashboard.html" class="nav-item">
+                                <span class="nav-icon">📊</span>
+                                <span>لوحة التحكم</span>
+                            </a>
+                            <a href="scan.html" class="nav-item">
+                                <span class="nav-icon">📷</span>
+                                <span>الماسح الضوئي</span>
+                            </a>
+                            <a href="settings.html" class="nav-item active">
+                                <span class="nav-icon">⚙️</span>
+                                <span>الإعدادات</span>
+                            </a>
+                        </nav>
+                    </aside>
+
+                    <!-- Main Content -->
+                    <main class="main-content">
+                        <header class="page-header">
+                            <div class="flex items-center gap-4">
+                                <button class="btn-icon menu-toggle">☰</button>
+                                <h1>الإعدادات</h1>
+                            </div>
+                        </header>
+
+                        <div class="settings-container" style="max-width: 800px; margin: 0 auto;">
+
+                            <!-- Data Management -->
+                            <section class="card p-4 mb-4 bg-white rounded-lg shadow">
+                                <h2 class="text-xl font-bold mb-4">إدارة البيانات</h2>
+                                <div class="flex flex-col gap-4">
+                                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded">
+                                        <div>
+                                            <h3 class="font-bold">تصدير قاعدة البيانات</h3>
+                                            <p class="text-sm text-gray-500">حفظ نسخة احتياطية من جميع المنتجات</p>
+                                        </div>
+                                        <button id="btnExport" class="btn btn-primary">تصدير JSON</button>
+                                    </div>
+
+                                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded">
+                                        <div>
+                                            <h3 class="font-bold">استيراد قاعدة البيانات</h3>
+                                            <p class="text-sm text-gray-500">استعادة نسخة سابقة (سيتم حذف الحالي)</p>
+                                        </div>
+                                        <input type="file" id="fileImport" accept=".json" hidden>
+                                        <button id="btnImport" class="btn btn-secondary">استيراد JSON</button>
+                                    </div>
+
+                                    <div
+                                        class="flex items-center justify-between p-4 bg-red-50 rounded border border-red-100">
+                                        <div>
+                                            <h3 class="font-bold text-red-600">حذف جميع البيانات</h3>
+                                            <p class="text-sm text-red-400">هذا الإجراء لا يمكن التراجع عنه</p>
+                                        </div>
+                                        <button id="btnClear" class="btn btn-danger">حذف الكل</button>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- App Settings -->
+                            <section class="card p-4 bg-white rounded-lg shadow">
+                                <h2 class="text-xl font-bold mb-4">تفضيلات التطبيق</h2>
+                                <div class="flex flex-col gap-4">
+                                    <div class="flex items-center justify-between p-2">
+                                        <span>النسخ الاحتياطي التلقائي</span>
+                                        <label class="switch">
+                                            <input type="checkbox" id="autoBackup">
+                                            <span class="switch-slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center justify-between p-2">
+                                        <span>الوضع المتقدم</span>
+                                        <label class="switch">
+                                            <input type="checkbox" id="advancedMode">
+                                            <span class="switch-slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <div class="text-center mt-8 text-gray-400 text-sm">
+                                <p>Supeco DLC Manager v1.0.0</p>
+                                <p>Offline PWA System</p>
+                            </div>
+                        </div>
+                    </main>
+
+                    <!-- App Scripts -->
+                    <script src="./js/namespace.js"></script>
+                    <script src="./js/storage.js"></script>
+                    <script src="./js/database.js"></script>
+                    <script src="./js/ui.js"></script>
+                    <script src="./js/modals.js"></script>
+                    <script src="./js/alerts.js"></script>
+                    <script src="./js/settings.js"></script>
+                    <script src="./js/router.js"></script>
+                    <script src="./js/app.js"></script>
+                </body>
+
+                </html>
